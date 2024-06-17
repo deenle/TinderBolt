@@ -1,4 +1,4 @@
-# Telegram Bot with ChatGPT for Dating practicing
+# Telegram Bot with ChatGPT for practicing a date
 
 ---
 
