@@ -266,8 +266,10 @@ public class MultiSessionTelegramBot extends TelegramLongPollingBot {
             photo.setPhoto(inputFile);
             photo.setChatId(getCurrentChatId());
 
-            if (text != null && !text.isEmpty())
+            if (text != null && !text.isEmpty()) {
+                photo.setParseMode("markdown");
                 photo.setCaption(text);
+            }
 
             return photo;
         } catch (Exception e) {
