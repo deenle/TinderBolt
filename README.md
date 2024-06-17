@@ -1,4 +1,4 @@
-# Telegram Bot with ChatGPT for practicing a date
+# Telegram Bot with AI for practicing a date
 
 ---
 
@@ -15,7 +15,7 @@
 Add environment variables to OS or to 'Run Configuration' in IntelliJ IDEA.
 * **TG_BOT_NAME** - for bot name as `"full_name_of_chat_bot"`;
 * **TG_BOT_TOKEN** - for bot token;
-* **OPENAI_TOKEN** - for OpenAI token.
+* **AI_TOKEN** - for AI token.
 
 ---
 ### Credits
@@ -23,7 +23,6 @@ Add environment variables to OS or to 'Run Configuration' in IntelliJ IDEA.
 
 * [TelegramBots](https://github.com/rubenlagus/TelegramBots)
 
-* OpenAI
 
 ---
 
