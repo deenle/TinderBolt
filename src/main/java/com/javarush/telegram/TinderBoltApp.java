@@ -10,9 +10,6 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMa
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
 
-import java.util.Deque;
-import java.util.LinkedList;
-import java.util.Queue;
 
 public class TinderBoltApp extends MultiSessionTelegramBot {
     public static final String TELEGRAM_BOT_NAME = System.getenv("TG_BOT_NAME");
@@ -21,7 +18,6 @@ public class TinderBoltApp extends MultiSessionTelegramBot {
 
     DialogMode currentMode = null;
     ChatGPTService chatGPT = new ChatGPTService(OPEN_AI_TOKEN);
-
 
     public TinderBoltApp() {
         super(TELEGRAM_BOT_NAME, TELEGRAM_BOT_TOKEN);
@@ -37,6 +33,7 @@ public class TinderBoltApp extends MultiSessionTelegramBot {
         if (!System.getenv("OWNER_ID").isEmpty() &&
                 update.getMessage().getFrom().getId() != Long.parseLong((System.getenv("OWNER_ID")))) return;
 
+        //Show greetings
         if(message.startsWith("/start")) {
             currentMode = DialogMode.MAIN;
             fileName = currentMode.modeToLowerCase();
@@ -45,6 +42,7 @@ public class TinderBoltApp extends MultiSessionTelegramBot {
             return;
         }
 
+        //Talking to ChatGPT
         if(message.startsWith("/gpt")) {
             currentMode = DialogMode.GPT;
             fileName = currentMode.modeToLowerCase();
@@ -52,7 +50,6 @@ public class TinderBoltApp extends MultiSessionTelegramBot {
             sendTextMessage(loadMessage(fileName));
             return;
         }
-
         if(currentMode == DialogMode.GPT) {
             String prompt = loadPrompt(DialogMode.GPT.modeToLowerCase());
             String answer = chatGPT.sendMessage(prompt, message);
@@ -60,6 +57,32 @@ public class TinderBoltApp extends MultiSessionTelegramBot {
             return;
         }
 
+        // Dating
+        if(message.startsWith("/date")) {
+            currentMode = DialogMode.DATE;
+            fileName = currentMode.modeToLowerCase();
+            sendPhotoMessage(fileName);
+
+            sendTextButtonsMessage(loadMessage(fileName),
+                    "Ариана Гранде \uD83D\uDD25","date_grande",
+                    "Марго Робби \uD83D\uDD25\uD83D\uDD25","date_robbie",
+                    "Зендея     \uD83D\uDD25\uD83D\uDD25\uD83D\uDD25","date_zendaya",
+                    "Райан Гослинг \uD83D\uDE0E","date_gosling",
+                    "Том Харди   \uD83D\uDE0E\uD83D\uDE0E","date_hardy");
+            return;
+        }
+        if(currentMode == DialogMode.DATE) {
+            String query = getCallbackQueryButtonKey();
+            if (query.startsWith("date_")) {
+                String prompt = loadPrompt(query);
+                chatGPT.setPrompt(prompt);
+                sendPhotoMessage(query);
+                return;
+            }
+            String answer = chatGPT.addMessage(message);
+            sendTextMessage(answer);
+            return;
+        }
 
         // Bot menu
         showMainMenu(DialogMode.MAIN.getTitle(), "/start",
@@ -68,18 +91,6 @@ public class TinderBoltApp extends MultiSessionTelegramBot {
                 DialogMode.MESSAGE.getTitle(), "/message",
                 DialogMode.DATE.getTitle(), "/date",
                 DialogMode.GPT.getTitle(), "/gpt");
-
-        // Buttons test
-        sendTextButtonsMessage("Push the Button",
-                "START", "start_btn",
-                        "STOP", "stop_btn");
-        if (getCallbackQueryButtonKey().equalsIgnoreCase("stop_btn")) {
-            sendTextMessage("We are stopping");
-        } else if (getCallbackQueryButtonKey().equalsIgnoreCase("start_btn")) {
-            sendTextMessage("Let's continue");
-        }
-
-
     }
 
     public static void main(String[] args) throws TelegramApiException {
