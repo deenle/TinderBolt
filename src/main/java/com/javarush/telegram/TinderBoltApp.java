@@ -77,6 +77,7 @@ public class TinderBoltApp extends MultiSessionTelegramBot {
                 String prompt = loadPrompt(query);
                 chatGPT.setPrompt(prompt);
                 sendPhotoMessage(query);
+                sendTextMessage("Thanks for choosing me! I'm ready to chat with you... ❤\uFE0F");
                 return;
             }
             Message msg = sendTextMessage("Wait pls, I'm thinking...");
