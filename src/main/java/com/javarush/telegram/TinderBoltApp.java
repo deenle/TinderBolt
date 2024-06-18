@@ -10,14 +10,18 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMa
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
 
+import java.util.ArrayList;
+import java.util.List;
+
 
 public class TinderBoltApp extends MultiSessionTelegramBot {
     public static final String TELEGRAM_BOT_NAME = System.getenv("TG_BOT_NAME");
     public static final String TELEGRAM_BOT_TOKEN = System.getenv("TG_BOT_TOKEN");
     public static final String OPEN_AI_TOKEN = System.getenv("OPENAI_TOKEN");
 
-    DialogMode currentMode = null;
-    ChatGPTService chatGPT = new ChatGPTService(OPEN_AI_TOKEN);
+    private DialogMode currentMode = null;
+    private final ChatGPTService chatGPT = new ChatGPTService(OPEN_AI_TOKEN);
+    private List<String> list = new ArrayList<>();
 
     public TinderBoltApp() {
         super(TELEGRAM_BOT_NAME, TELEGRAM_BOT_TOKEN);
@@ -30,8 +34,8 @@ public class TinderBoltApp extends MultiSessionTelegramBot {
         String message = getMessageText();
 
         // Allow to communicate only with the bot owner
-        if (!System.getenv("OWNER_ID").isEmpty() &&
-                update.getMessage().getFrom().getId() != Long.parseLong((System.getenv("OWNER_ID")))) return;
+//        if (!System.getenv("OWNER_ID").isEmpty() &&
+//                update.getMessage().getFrom().getId() != Long.parseLong((System.getenv("OWNER_ID")))) return;
 
         //Show greetings
         if(message.startsWith("/start")) {
@@ -81,6 +85,30 @@ public class TinderBoltApp extends MultiSessionTelegramBot {
             }
             String answer = chatGPT.addMessage(message);
             sendTextMessage(answer);
+            return;
+        }
+
+        //Message a chat to AI
+        if(message.startsWith("/message")) {
+            currentMode = DialogMode.MESSAGE;
+            fileName = currentMode.modeToLowerCase();
+            sendPhotoMessage(fileName);
+            sendTextButtonsMessage(loadMessage(fileName),
+                    "Next message", "message_next",
+                    "Invite for a date!", "message_date");
+            return;
+        }
+        if(currentMode == DialogMode.MESSAGE) {
+            String query = getCallbackQueryButtonKey();
+            if (query.startsWith("message_")) {
+                String prompt = loadPrompt(query);
+                String userChatHistory = String.join("\n\n", list);
+                Message msg = sendTextMessage("Wait pls, I'm thinking...");
+                String answer = chatGPT.sendMessage(prompt, userChatHistory);
+                updateTextMessage(msg, answer);
+                return;
+            }
+            list.add(message);
             return;
         }
 
