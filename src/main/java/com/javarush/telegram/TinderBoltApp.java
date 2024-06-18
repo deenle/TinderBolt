@@ -1,12 +1,7 @@
 package com.javarush.telegram;
 
-import com.javarush.telegram.ChatGPTService;
-import com.javarush.telegram.DialogMode;
-import com.javarush.telegram.MultiSessionTelegramBot;
-import com.javarush.telegram.UserInfo;
 import org.telegram.telegrambots.meta.TelegramBotsApi;
 import org.telegram.telegrambots.meta.api.objects.*;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
 
@@ -21,7 +16,7 @@ public class TinderBoltApp extends MultiSessionTelegramBot {
 
     private DialogMode currentMode = null;
     private final ChatGPTService chatGPT = new ChatGPTService(OPEN_AI_TOKEN);
-    private List<String> list = new ArrayList<>();
+    private final List<String> list = new ArrayList<>();
 
     public TinderBoltApp() {
         super(TELEGRAM_BOT_NAME, TELEGRAM_BOT_TOKEN);
@@ -56,8 +51,9 @@ public class TinderBoltApp extends MultiSessionTelegramBot {
         }
         if(currentMode == DialogMode.GPT) {
             String prompt = loadPrompt(DialogMode.GPT.modeToLowerCase());
+            Message msg = sendTextMessage("Wait pls, I'm thinking...");
             String answer = chatGPT.sendMessage(prompt, message);
-            sendTextMessage(answer);
+            updateTextMessage(msg, answer);
             return;
         }
 
@@ -83,8 +79,9 @@ public class TinderBoltApp extends MultiSessionTelegramBot {
                 sendPhotoMessage(query);
                 return;
             }
+            Message msg = sendTextMessage("Wait pls, I'm thinking...");
             String answer = chatGPT.addMessage(message);
-            sendTextMessage(answer);
+            updateTextMessage(msg, answer);
             return;
         }
 
