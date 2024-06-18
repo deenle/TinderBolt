@@ -29,11 +29,17 @@ public class TinderBoltApp extends MultiSessionTelegramBot {
         String message = getMessageText();
 
         // Allow to communicate only with the bot owner
-//        if (!System.getenv("OWNER_ID").isEmpty() &&
-//                update.getMessage().getFrom().getId() != Long.parseLong((System.getenv("OWNER_ID")))) return;
+        if (!System.getenv("OWNER_ID").isEmpty()) {
+            long ownerId = Long.parseLong(System.getenv("OWNER_ID"));
+            long botId = Long.parseLong(System.getenv("BOT_ID"));
+            if (update.getMessage() != null) {
+                long userId = update.getMessage().getFrom().getId();
+                if (userId != ownerId && userId != botId) return;
+            }
+        }
 
         //Show greetings
-        if(message.startsWith("/start")) {
+        if (message.startsWith("/start")) {
             currentMode = DialogMode.MAIN;
             fileName = currentMode.modeToLowerCase();
             sendPhotoMessage(fileName);
@@ -42,14 +48,14 @@ public class TinderBoltApp extends MultiSessionTelegramBot {
         }
 
         //Talking to ChatGPT
-        if(message.startsWith("/gpt")) {
+        if (message.startsWith("/gpt")) {
             currentMode = DialogMode.GPT;
             fileName = currentMode.modeToLowerCase();
             sendPhotoMessage(fileName);
             sendTextMessage(loadMessage(fileName));
             return;
         }
-        if(currentMode == DialogMode.GPT) {
+        if (currentMode == DialogMode.GPT) {
             String prompt = loadPrompt(DialogMode.GPT.modeToLowerCase());
             Message msg = sendTextMessage("Wait pls, I'm thinking...");
             String answer = chatGPT.sendMessage(prompt, message);
@@ -58,26 +64,26 @@ public class TinderBoltApp extends MultiSessionTelegramBot {
         }
 
         // Dating
-        if(message.startsWith("/date")) {
+        if (message.startsWith("/date")) {
             currentMode = DialogMode.DATE;
             fileName = currentMode.modeToLowerCase();
             sendPhotoMessage(fileName);
 
             sendTextButtonsMessage(loadMessage(fileName),
-                    "Ариана Гранде \uD83D\uDD25","date_grande",
-                    "Марго Робби \uD83D\uDD25\uD83D\uDD25","date_robbie",
-                    "Зендея     \uD83D\uDD25\uD83D\uDD25\uD83D\uDD25","date_zendaya",
-                    "Райан Гослинг \uD83D\uDE0E","date_gosling",
-                    "Том Харди   \uD83D\uDE0E\uD83D\uDE0E","date_hardy");
+                    "Ариана Гранде \uD83D\uDD25", "date_grande",
+                    "Марго Робби \uD83D\uDD25\uD83D\uDD25", "date_robbie",
+                    "Зендея     \uD83D\uDD25\uD83D\uDD25\uD83D\uDD25", "date_zendaya",
+                    "Райан Гослинг \uD83D\uDE0E", "date_gosling",
+                    "Том Харди   \uD83D\uDE0E\uD83D\uDE0E", "date_hardy");
             return;
         }
-        if(currentMode == DialogMode.DATE) {
+        if (currentMode == DialogMode.DATE) {
             String query = getCallbackQueryButtonKey();
             if (query.startsWith("date_")) {
                 String prompt = loadPrompt(query);
                 chatGPT.setPrompt(prompt);
                 sendPhotoMessage(query);
-                sendTextMessage("Thanks for choosing me! I'm ready to chat with you... ❤\uFE0F");
+                sendTextMessage("Thanks for choosing me! I'm ready to chat with you... ❤️");
                 return;
             }
             Message msg = sendTextMessage("Wait pls, I'm thinking...");
@@ -87,7 +93,7 @@ public class TinderBoltApp extends MultiSessionTelegramBot {
         }
 
         //Message a chat to AI
-        if(message.startsWith("/message")) {
+        if (message.startsWith("/message")) {
             currentMode = DialogMode.MESSAGE;
             fileName = currentMode.modeToLowerCase();
             sendPhotoMessage(fileName);
@@ -96,7 +102,7 @@ public class TinderBoltApp extends MultiSessionTelegramBot {
                     "Invite for a date!", "message_date");
             return;
         }
-        if(currentMode == DialogMode.MESSAGE) {
+        if (currentMode == DialogMode.MESSAGE) {
             String query = getCallbackQueryButtonKey();
             if (query.startsWith("message_")) {
                 String prompt = loadPrompt(query);
