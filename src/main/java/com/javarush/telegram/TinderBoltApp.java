@@ -18,6 +18,7 @@ public class TinderBoltApp extends MultiSessionTelegramBot {
     private final ChatGPTService chatGPT = new ChatGPTService(OPEN_AI_TOKEN);
     private final List<String> list = new ArrayList<>();
     private UserInfo user;
+    private UserInfo friend;
     int questionCounter;
 
     public TinderBoltApp() {
@@ -154,6 +155,51 @@ public class TinderBoltApp extends MultiSessionTelegramBot {
                     String prompt = loadPrompt(DialogMode.PROFILE.modeToLowerCase());
                     Message msg = sendTextMessage("Wait pls, I'm generating your profile \uD83E\uDD78 ...");
                     String answer = chatGPT.sendMessage(prompt, infoAboutMe);
+                    updateTextMessage(msg, answer);
+                    return;
+            }
+            return;
+        }
+
+        //Opener (text to a new friend)
+        if (message.startsWith("/opener")) {
+            currentMode = DialogMode.OPENER;
+            fileName = currentMode.modeToLowerCase();
+            sendPhotoMessage(fileName);
+            sendTextMessage(loadMessage(fileName));
+
+            friend = new UserInfo();
+            questionCounter = 1;
+            sendTextMessage("What is her/his name?");
+            return;
+        }
+        if (currentMode == DialogMode.OPENER) {
+            fileName = currentMode.modeToLowerCase();
+
+            switch (questionCounter) {
+                case 1:
+                    friend.name = message;
+                    questionCounter++;
+                    sendTextMessage("What is her/his city?");
+                    return;
+                case 2:
+                    friend.city = message;
+                    questionCounter++;
+                    sendTextMessage("What is her/his hobby?");
+                    return;
+                case 3:
+                    friend.hobby = message;
+                    questionCounter++;
+                    sendTextMessage("What is her/his goals?");
+                    return;
+                case 4:
+                    friend.goals = message;
+                    questionCounter++;
+
+                    String infoAboutFriend = friend.toString();
+                    String prompt = loadPrompt(fileName);
+                    Message msg = sendTextMessage("Wait pls, I'm generating your message \uD83E\uDD78 ...");
+                    String answer = chatGPT.sendMessage(prompt, infoAboutFriend);
                     updateTextMessage(msg, answer);
                     return;
             }
