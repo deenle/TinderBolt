@@ -17,6 +17,8 @@ public class TinderBoltApp extends MultiSessionTelegramBot {
     private DialogMode currentMode = null;
     private final ChatGPTService chatGPT = new ChatGPTService(OPEN_AI_TOKEN);
     private final List<String> list = new ArrayList<>();
+    private UserInfo user;
+    int questionCounter;
 
     public TinderBoltApp() {
         super(TELEGRAM_BOT_NAME, TELEGRAM_BOT_TOKEN);
@@ -57,7 +59,7 @@ public class TinderBoltApp extends MultiSessionTelegramBot {
         }
         if (currentMode == DialogMode.GPT) {
             String prompt = loadPrompt(DialogMode.GPT.modeToLowerCase());
-            Message msg = sendTextMessage("Wait pls, I'm thinking...");
+            Message msg = sendTextMessage("Wait pls, I'm thinking \uD83E\uDD78 ...");
             String answer = chatGPT.sendMessage(prompt, message);
             updateTextMessage(msg, answer);
             return;
@@ -86,7 +88,7 @@ public class TinderBoltApp extends MultiSessionTelegramBot {
                 sendTextMessage("Thanks for choosing me! I'm ready to chat with you... ❤️");
                 return;
             }
-            Message msg = sendTextMessage("Wait pls, I'm thinking...");
+            Message msg = sendTextMessage("Wait pls, I'm thinking \uD83E\uDD78 ...");
             String answer = chatGPT.addMessage(message);
             updateTextMessage(msg, answer);
             return;
@@ -107,12 +109,54 @@ public class TinderBoltApp extends MultiSessionTelegramBot {
             if (query.startsWith("message_")) {
                 String prompt = loadPrompt(query);
                 String userChatHistory = String.join("\n\n", list);
-                Message msg = sendTextMessage("Wait pls, I'm thinking...");
+                Message msg = sendTextMessage("Wait pls, I'm thinking \uD83E\uDD78 ...");
                 String answer = chatGPT.sendMessage(prompt, userChatHistory);
                 updateTextMessage(msg, answer);
                 return;
             }
             list.add(message);
+            return;
+        }
+
+        //Generating profile for Tinder
+        if (message.startsWith("/profile")) {
+            currentMode = DialogMode.PROFILE;
+            fileName = currentMode.modeToLowerCase();
+            sendPhotoMessage(fileName);
+            sendTextMessage(loadMessage(fileName));
+
+            user = new UserInfo();
+            questionCounter = 1;
+            sendTextMessage("How old are you?");
+            return;
+        }
+        if (currentMode == DialogMode.PROFILE) {
+            switch (questionCounter) {
+                case 1:
+                    user.age = message;
+                    questionCounter++;
+                    sendTextMessage("What is your occupation?");
+                    return;
+                case 2:
+                    user.occupation = message;
+                    questionCounter++;
+                    sendTextMessage("What is your hobby?");
+                    return;
+                case 3:
+                    user.hobby = message;
+                    questionCounter++;
+                    sendTextMessage("What is your goal?");
+                    return;
+                case 4:
+                    user.goals = message;
+
+                    String infoAboutMe = user.toString();
+                    String prompt = loadPrompt(DialogMode.PROFILE.modeToLowerCase());
+                    Message msg = sendTextMessage("Wait pls, I'm generating your profile \uD83E\uDD78 ...");
+                    String answer = chatGPT.sendMessage(prompt, infoAboutMe);
+                    updateTextMessage(msg, answer);
+                    return;
+            }
             return;
         }
 
