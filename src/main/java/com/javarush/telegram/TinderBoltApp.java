@@ -58,7 +58,7 @@ public class TinderBoltApp extends MultiSessionTelegramBot {
             sendTextMessage(loadMessage(fileName));
             return;
         }
-        if (currentMode == DialogMode.GPT) {
+        if (currentMode == DialogMode.GPT && !isMessageCommand()) {
             String prompt = loadPrompt(DialogMode.GPT.modeToLowerCase());
             Message msg = sendTextMessage("Wait pls, I'm thinking \uD83E\uDD78 ...");
             String answer = chatGPT.sendMessage(prompt, message);
@@ -80,7 +80,7 @@ public class TinderBoltApp extends MultiSessionTelegramBot {
                     "Том Харди   \uD83D\uDE0E\uD83D\uDE0E", "date_hardy");
             return;
         }
-        if (currentMode == DialogMode.DATE) {
+        if (currentMode == DialogMode.DATE && !isMessageCommand()) {
             String query = getCallbackQueryButtonKey();
             if (query.startsWith("date_")) {
                 String prompt = loadPrompt(query);
@@ -105,7 +105,7 @@ public class TinderBoltApp extends MultiSessionTelegramBot {
                     "Invite for a date!", "message_date");
             return;
         }
-        if (currentMode == DialogMode.MESSAGE) {
+        if (currentMode == DialogMode.MESSAGE && !isMessageCommand()) {
             String query = getCallbackQueryButtonKey();
             if (query.startsWith("message_")) {
                 String prompt = loadPrompt(query);
@@ -131,7 +131,7 @@ public class TinderBoltApp extends MultiSessionTelegramBot {
             sendTextMessage("How old are you?");
             return;
         }
-        if (currentMode == DialogMode.PROFILE) {
+        if (currentMode == DialogMode.PROFILE && !isMessageCommand()) {
             switch (questionCounter) {
                 case 1:
                     user.age = message;
@@ -173,7 +173,7 @@ public class TinderBoltApp extends MultiSessionTelegramBot {
             sendTextMessage("What is her/his name?");
             return;
         }
-        if (currentMode == DialogMode.OPENER) {
+        if (currentMode == DialogMode.OPENER && !isMessageCommand()) {
             fileName = currentMode.modeToLowerCase();
 
             switch (questionCounter) {
