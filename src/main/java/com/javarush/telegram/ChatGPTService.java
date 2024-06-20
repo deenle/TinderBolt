@@ -12,22 +12,37 @@ import java.util.Arrays;
 import java.util.List;
 
 public class ChatGPTService {
-    private ChatGPT chatGPT;
+    private final ChatGPT chatGPT;
 
     private List<Message> messageHistory = new ArrayList<>(); //История переписки с ChatGPT - нужна для диалогов
 
     public ChatGPTService(String token) {
-        Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress("18.199.183.77", 49232));
+        String proxyIp = System.getenv("PROXY_IP");
+        String proxyPort = System.getenv("PROXY_PORT");
+        Proxy proxy = null;
+
         if (token.startsWith("gpt:")) {
             token = "sk-proj-" + new StringBuilder(token.substring(4)).reverse();
         }
 
-        this.chatGPT = ChatGPT.builder()
+        if (proxyIp != null && proxyPort != null) {
+            try {
+                int port = Integer.parseInt(proxyPort);
+                proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(proxyIp, port));
+            } catch (NumberFormatException e) {
+                System.err.println("Invalid proxy port. Proxy will not be used.");
+            }
+        }
+
+        ChatGPT.ChatGPTBuilder builder = ChatGPT.builder()
                 .apiKey(token)
-                .apiHost("https://api.openai.com/")
-                .proxy(proxy)
-                .build()
-                .init();
+                .apiHost("https://api.openai.com/");
+
+        if (proxy != null) {
+                builder.proxy(proxy);
+        }
+
+        this.chatGPT = builder.build().init();
     }
 
     /**

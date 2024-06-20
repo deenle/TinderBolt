@@ -17,9 +17,13 @@ Add environment variables to OS or to 'Run Configuration' in IntelliJ IDEA.
 * **TG_BOT_TOKEN** - for bot token;
 * **AI_TOKEN** - for AI token.
 
-   #### Optionally for access restriction:
+  #### Optionally: 
+  * for access restriction:
     * **OWNER_ID** - Telegram user ID;
     * **BOT_ID** - Your Bot ID (in order to forward replies from AI).
+  * for using proxy:
+    * **PROXY_IP** - proxy IP address;
+    * **PROXY_PORT** - proxy PORT.
 
 ---
 ### Credits
