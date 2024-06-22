@@ -25,6 +25,24 @@ Add environment variables to OS or to 'Run Configuration' in IntelliJ IDEA.
     * **PROXY_IP** - proxy IP address;
     * **PROXY_PORT** - proxy PORT.
 
+## Running with Docker
+
+Open IntelliJ IDEA and go to:
+
+   * File>Project Structure>Artifacts> + (Add artifact)>JAR>From modules with dependencies>Select main class (Main.java )>OK>Apply. 
+
+   * Then Build>Build Artifacts>Build. 
+
+Then in the out/artifacts/ folder you will see your JAR.
+
+Build and run your image:
+
+```
+docker build -t tgbot-image .
+
+docker compose up -d
+```
+
 ---
 ### Credits
 * [JavaRush](https://javarush.com)
