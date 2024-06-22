@@ -29,9 +29,9 @@ Add environment variables to OS or to 'Run Configuration' in IntelliJ IDEA.
 
 Open IntelliJ IDEA and go to:
 
-   * File>Project Structure>Artifacts> + (Add artifact)>JAR>From modules with dependencies>Select main class (Main.java )>OK>Apply. 
+   * File > Project Structure > Artifacts > + (Add artifact) > JAR > From modules with dependencies > Select main class (Main.java ) > OK (Apply). 
 
-   * Then Build>Build Artifacts>Build. 
+   * Then Build > Build Artifacts > Build (Rebuild). 
 
 Then in the out/artifacts/ folder you will see your JAR.
 
