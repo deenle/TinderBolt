@@ -32,7 +32,7 @@ public class TinderBoltApp extends MultiSessionTelegramBot {
         String message = getMessageText();
 
         // Allow to communicate only with the bot owner
-        if (!System.getenv("OWNER_ID").isEmpty()) {
+        if (System.getenv("OWNER_ID") != null ) {
             long ownerId = Long.parseLong(System.getenv("OWNER_ID"));
             long botId = Long.parseLong(System.getenv("BOT_ID"));
             if (update.getMessage() != null) {

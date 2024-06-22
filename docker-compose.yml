@@ -1,0 +1,12 @@
+version: '3'
+services:
+  server:
+    container_name: tgbot
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: tgbot-image:latest
+    environment:
+      - OPENAI_TOKEN=
+      - TG_BOT_TOKEN=
+      - TG_BOT_NAME=""
